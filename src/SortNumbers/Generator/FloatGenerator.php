@@ -2,7 +2,7 @@
 
 namespace SortNumbers\Generator;
 
-class FloatGenerator extends BaseNumberGeneratorInterface
+class FloatGenerator extends BaseNumberGenerator
 {
     /**
      * @var int
@@ -10,11 +10,17 @@ class FloatGenerator extends BaseNumberGeneratorInterface
     private $decimals;
 
     /**
+     * @var int
+     */
+    private $maxSubMin;
+
+    /**
      * @param int $decimals
      */
     public function __construct(int $decimals)
     {
         $this->decimals = $decimals;
+        $this->maxSubMin = $this->max - $this->min;
     }
 
     /**
@@ -22,6 +28,6 @@ class FloatGenerator extends BaseNumberGeneratorInterface
      */
     public function generate(): float
     {
-        return round($this->min + lcg_value() * ($this->max - $this->min), $this->decimals);
+        return round($this->min + lcg_value() * $this->maxSubMin, $this->decimals);
     }
 }

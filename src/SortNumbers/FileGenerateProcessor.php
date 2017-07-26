@@ -20,7 +20,7 @@ class FileGenerateProcessor
     /**
      * @var int
      */
-    private $chunk;
+    private $chunkSize;
 
     /**
      * @var float
@@ -48,13 +48,13 @@ class FileGenerateProcessor
      */
     public function process(string $filePath, int $fileSize): void
     {
-        $file = $this->start($filePath);
+        $file = $this->start($filePath, $fileSize);
         while(($filePosition = ftell($file)) <= $fileSize) {
-            if ($this->shouldAdvanceProgress($filePosition, $fileSize)) {
-                $this->advanceProgress();
+            if ($filePosition > $this->chunkSize) {
+                $this->advanceProgress($fileSize);
             }
 
-            $this->writeNumberToFile($file);
+            fwrite($file, $this->NumberGenerator->generate() . PHP_EOL);
         }
 
         $this->end($file);
@@ -62,41 +62,26 @@ class FileGenerateProcessor
 
     /**
      * @param string $filePath
+     * @param int $fileSize
      *
      * @return mixed
      */
-    private function start(string $filePath)
+    private function start(string $filePath, int $fileSize)
     {
         $this->start = microtime(true);
         $this->ProgressBar->start();
-        $this->chunk = 1;
+        $this->chunkSize = $fileSize / $this->ProgressBar->getMaxSteps();
 
         return fopen($filePath, 'w');
     }
 
     /**
-     * @param int $filePosition
      * @param int $fileSize
-     *
-     * @return bool
      */
-    private function shouldAdvanceProgress(int $filePosition, int $fileSize): bool
-    {
-        return $filePosition > ($fileSize / $this->ProgressBar->getMaxSteps() * $this->chunk);
-    }
-
-    private function advanceProgress(): void
+    private function advanceProgress(int $fileSize): void
     {
         $this->ProgressBar->advance();
-        $this->chunk++;
-    }
-
-    /**
-     * @param resource $file
-     */
-    private function writeNumberToFile($file): void
-    {
-        fwrite($file, $this->NumberGenerator->generate() . PHP_EOL);
+        $this->chunkSize += $fileSize / $this->ProgressBar->getMaxSteps();
     }
 
     /**

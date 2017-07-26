@@ -2,7 +2,7 @@
 
 namespace SortNumbers\Generator;
 
-abstract class BaseNumberGeneratorInterface implements NumberGeneratorInterface
+abstract class BaseNumberGenerator implements NumberGeneratorInterface
 {
     /**
      * @var int

@@ -42,7 +42,7 @@ class SortNumbersFile extends Command
         $Processor->process($inputFilePath, $outputFilePath);
 
         $output->writeln(sprintf(
-            '%sFile generated in %.2f seconds',
+            '%sFile sorted in %.2f seconds',
             PHP_EOL,
             $Processor->getProcessTime()
         ));

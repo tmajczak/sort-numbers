@@ -2,7 +2,7 @@
 
 namespace SortNumbers\Generator;
 
-class IntegerGenerator extends BaseNumberGeneratorInterface
+class IntegerGenerator extends BaseNumberGenerator
 {
     /**
      * @return float

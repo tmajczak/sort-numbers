@@ -14,6 +14,11 @@ class FileSortProcessor
     /**
      * @var int
      */
+    private $chunkSize;
+
+    /**
+     * @var int
+     */
     private $inputToTempLoop;
 
     /**
@@ -98,7 +103,7 @@ class FileSortProcessor
         while (($line = fgets($inputFile)) !== false) {
             $this->inputData[] = rtrim($line);
 
-            if ($this->isMaxDataExceed($inputFile)) {
+            if (ftell($inputFile) >= $this->chunkSize) {
                 $this->writeDataToTempFile();
 
                 $this->advanceToNextTempFile($inputFilePath);
@@ -116,23 +121,16 @@ class FileSortProcessor
     {
         $fileName = sprintf('%s.%s', $inputFilePath, $this->inputToTempLoop);
         $this->tempFiles[$this->inputToTempLoop] = fopen($fileName, 'w+');
-    }
-
-    /**
-     * @param resource $inputFile
-     *
-     * @return bool
-     */
-    private function isMaxDataExceed($inputFile): bool
-    {
-        return ftell($inputFile) >= ($this->chunkMaxSize * $this->inputToTempLoop);
+        $this->chunkSize = $this->chunkMaxSize * $this->inputToTempLoop;
     }
 
     private function writeDataToTempFile()
     {
+        $file = $this->tempFiles[$this->inputToTempLoop];
+
         sort($this->inputData);
         foreach ($this->inputData as $line) {
-            fwrite($this->tempFiles[$this->inputToTempLoop], $line . PHP_EOL);
+            fwrite($file, $line . PHP_EOL);
         }
 
         $this->inputData = [];
@@ -202,7 +200,7 @@ class FileSortProcessor
     {
         foreach ($this->tempFiles as $key => $file) {
             fclose($file);
-//            unlink(sprintf('%s.%s', $inputFilePath, $key));
+            unlink(sprintf('%s.%s', $inputFilePath, $key));
         }
     }
 
